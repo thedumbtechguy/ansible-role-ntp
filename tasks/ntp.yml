@@ -1,0 +1,30 @@
+---
+
+- name: ensure ntp is installed
+  apt: 
+    name: ntp 
+    state: present
+    update_cache: true
+  become: true
+
+- name: configure ntp
+  template: 
+    src: ntp.j2 
+    dest: /etc/ntp.conf
+  notify: restart ntp
+  become: true
+
+- name: remove default time zone
+  file: 
+    path: /etc/localtime 
+    state: absent
+  changed_when: False
+  become: true
+
+- name: set timezone to local time
+  file: 
+    src: /usr/share/zoneinfo/{{ ntp_timezone }} 
+    dest: /etc/localtime 
+    state: link
+  changed_when: False
+  become: true
